@@ -148,6 +148,38 @@ class VentasModelo
 
         return ['venta' => $venta, 'detalles' => $detalles];
     }
+    
+    public function filtrarFacturas($identificacion = '', $formaPago = '')
+    {
+        $conexion = new Conexion();
+        $conn = $conexion->conectar();
+
+        $sql = "SELECT v.id, v.cliente, v.identificacion, v.total, v.fecha_venta, f.descripcion AS forma_pago
+            FROM ventas v
+            INNER JOIN formas_pago f ON v.id_forma_pago = f.id
+            WHERE v.estado = 1";
+
+        $parametros = [];
+
+        if (!empty($identificacion)) {
+            $sql .= " AND v.identificacion LIKE :identificacion";
+            $parametros[':identificacion'] = "%$identificacion%";
+        }
+
+        if (!empty($formaPago)) {
+            $sql .= " AND f.descripcion LIKE :formaPago";
+            $parametros[':formaPago'] = "%$formaPago%";
+        }
+
+        $sql .= " ORDER BY v.fecha_venta DESC";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($parametros);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     public function actualizarVenta($venta, $detalles)
     {
         $conexion = new Conexion();
