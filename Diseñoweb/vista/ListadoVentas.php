@@ -3,7 +3,14 @@
 
 require_once __DIR__ . '/../controlador/VentasControlador.php';
 $ventasControlador = new VentasControlador();
-$ventas = $ventasControlador->listarVentas();
+$formasPago = $ventasControlador->getFormasPago();
+
+if (!empty($_GET['identificacion']) || !empty($_GET['forma_pago'])) {
+    $ventas = $ventasControlador->filtrarFacturas();
+} else {
+    $ventas = $ventasControlador->listarVentas();
+}
+
 $mensajes = [
     'registrado'   => ['Factura registrada correctamente.', 'success'],
     'actualizado'  => ['Factura actualizada correctamente.', 'success'],
@@ -26,6 +33,32 @@ $mensajes = [
     }
     ?>
     <h2 class="ventas-titulo">Listado de Facturas</h2>
+
+    <!-- Filtro -->
+    <form method="GET" class="mb-3">
+        <input type="hidden" name="accion" value="verFacturas">
+        <div class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="identificacion" class="form-control" placeholder="Buscar por Identificación"
+                    value="<?= htmlspecialchars($_GET['identificacion'] ?? '') ?>">
+            </div>
+            <div class="col-md-4">
+                <select name="forma_pago" class="form-control">
+                    <option value="">-- Forma de Pago --</option>
+                    <?php foreach ($formasPago as $forma): ?>
+                        <option value="<?= htmlspecialchars($forma['descripcion']) ?>"
+                            <?= (isset($_GET['forma_pago']) && $_GET['forma_pago'] === $forma['descripcion']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($forma['descripcion']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-4 d-flex">
+                <button type="submit" class="btn btn-primary me-2">Buscar</button>
+                <a href="index.php?accion=verFacturas" class="btn btn-secondary">Limpiar</a>
+            </div>
+        </div>
+    </form>
 
     <table class="ventas-tabla">
         <thead>
@@ -58,6 +91,7 @@ $mensajes = [
         </tbody>
     </table>
 </main>
+
 <div id="modalFactura" class="modal" style="display:none;">
     <div class="modal-contenido">
         <span id="cerrarModal" style="float:right; cursor:pointer;">&times;</span>
