@@ -71,8 +71,17 @@ class VentasControlador
     public function obtenerVentaPorId($id)
     {
         $modelo = new VentasModelo();
-        return $modelo->obtenerFacturaPorId($id); 
+        return $modelo->obtenerFacturaPorId($id);
     }
+    public function filtrarFacturas()
+    {
+        $modelo = new VentasModelo();
+        $identificacion = $_GET['identificacion'] ?? '';
+        $formaPago = $_GET['forma_pago'] ?? '';
+        return $modelo->filtrarFacturas($identificacion, $formaPago);
+    }
+
+
 
     public function actualizarVenta()
     {
