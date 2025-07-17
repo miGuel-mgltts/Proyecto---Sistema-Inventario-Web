@@ -1,0 +1,89 @@
+-- Tabla: producto
+CREATE TABLE producto (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    codigo NVARCHAR(50) NOT NULL,
+    nombre NVARCHAR(100) NOT NULL,
+    stock INT NOT NULL,
+    id_categoria INT,
+    precio_venta DECIMAL(10, 2),
+    precio_compra DECIMAL(10, 2),
+    fecha_ingreso DATE,
+    origen NVARCHAR(50),
+    estado BIT
+);
+
+-- Tabla: categorias
+CREATE TABLE categorias (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    nombre NVARCHAR(100) NOT NULL
+);
+
+-- Tabla: proveedor
+CREATE TABLE proveedor (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    nombre_compania NVARCHAR(100) NOT NULL,
+    nombre_contacto NVARCHAR(100) NOT NULL,
+    cedula NVARCHAR(20) NOT NULL,
+    telefono NVARCHAR(20) NOT NULL,
+    email NVARCHAR(100) NOT NULL,
+    fecha_integracion DATE NOT NULL,
+    producto_relacionado INT,
+    tipo_contrato NVARCHAR(50) NOT NULL,
+    estado BIT NOT NULL,
+    FOREIGN KEY (producto_relacionado) REFERENCES producto(id)
+);
+
+-- Tabla: motivo_devolucion
+CREATE TABLE motivo_devolucion (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    nombre NVARCHAR(100) NOT NULL
+);
+
+CREATE TABLE devolucion_producto (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    codigo NVARCHAR(50) NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad_devuelta INT NOT NULL,
+    motivo_id INT NOT NULL,
+    fecha_devolucion DATE NOT NULL,
+    responsable NVARCHAR(100) NOT NULL,
+    FOREIGN KEY (id_producto) REFERENCES producto(id),
+    FOREIGN KEY (motivo) REFERENCES motivo_devolucion(id)
+);
+
+CREATE TABLE ventas (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    cliente NVARCHAR(150) NOT NULL,
+    identificacion NVARCHAR(20),
+    telefono NVARCHAR(20),
+    correo NVARCHAR(100),
+    subtotal DECIMAL(10,2) NOT NULL,
+    iva DECIMAL(10,2) NOT NULL,
+    total DECIMAL(10,2) NOT NULL,
+    importe_recibido DECIMAL(10,2) NOT NULL,
+    cambio DECIMAL(10,2) NOT NULL,
+    id_forma_pago INT NOT NULL,
+    fecha_venta DATETIME DEFAULT GETDATE(),
+    estado BIT DEFAULT 1;
+    FOREIGN KEY (id_forma_pago) REFERENCES formas_pago(id)
+);
+CREATE TABLE detalle_venta (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    id_venta INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10,2) NOT NULL,
+    total_linea DECIMAL(10,2) NOT NULL, -- cantidad * precio_unitario
+    FOREIGN KEY (id_venta) REFERENCES ventas(id),
+    FOREIGN KEY (id_producto) REFERENCES producto(id)
+);
+CREATE TABLE formas_pago (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    descripcion NVARCHAR(50) NOT NULL
+);
+
+INSERT INTO formas_pago (descripcion) VALUES
+('Efectivo'),
+('Tarjeta de Débito'),
+('Tarjeta de Crédito'),
+('Cheque');
